@@ -1,4 +1,4 @@
-import torch
+import torch.nn as nn
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -57,8 +57,6 @@ test_records = collect_image_hashes(
 
 hash_df = pd.DataFrame(train_records + test_records)
 
-print(hash_df.head())
-
 train_loader = DataLoader(
     train_dataset,
     batch_size=32,
@@ -73,7 +71,7 @@ test_loader = DataLoader(
 
 print(Counter(train_dataset.targets))
 print(train_dataset.class_to_idx)
-# It is, largely, equally balanced.
+# It is, largely, equally balanced with flip and notflip images (1162:1230)
 
 records = []
 
@@ -96,6 +94,9 @@ for cls in ["flip", "notflip"]:
             print("Could not open:", path)
 
 df = pd.DataFrame(records)
+
+# Both width and height have a standard deviation of 0 for flip and notflip, so
+# it is consistent throughout. 
 
 print(df.head())
 
@@ -128,11 +129,14 @@ for row, cls in enumerate(["flip", "notflip"]):
 plt.tight_layout()
 plt.show()
 
+# After running several times, the images are very similar in set up.
+
 duplicates = hash_df[
     hash_df.duplicated("hash", keep=False)
 ].sort_values("hash")
 
-print(duplicates)
+print("These are the duplicates", duplicates)
+# There are no duplicates.
 
 
 train_hashes = set(
@@ -161,3 +165,7 @@ train_test_duplicates = hash_df[
 print(train_test_duplicates[
     ["dataset", "class", "filename", "path", "hash"]
 ])
+
+
+
+### Model building
